@@ -5,11 +5,6 @@ class LineIntersectionVector2D {
         // Data structure of this.lines array: [{x1, y1, x2, y2}, ...]
 
     }
-    
-    createLine(x1, y1, x2, y2) {
-        this.lines.push({x1, y1, x2, y2})
-        return this.lines[this.lines.length - 1]
-    }
 
     // Checks intersection between all lines in this.lines
     update() {
@@ -17,12 +12,61 @@ class LineIntersectionVector2D {
         // loop through this.lines with no repeated combinations
         for (let i = 0; i < this.lines.length; i++) {
             for (let j = i; j < this.lines.length; j++) {
-                let point = this.checkIntersection(this.lines[i], this.lines[j])
+                if (this.lines[i].kin != this.lines[j].kin || this.lines[i].kin == null) {
+                    let point = this.checkIntersection(this.lines[i], this.lines[j])
                 if (point) {
                     this.currentIntersections.push(point)
                 }
+                }
             }
         }
+    }
+
+    // x, y is position of center
+    // r is radius
+    // n is number of sides
+    createRegularPolygon(x, y, r, n, rotation=0) {
+        const id = "id" + Math.random().toString(16).slice(2)
+
+        function toRadians (angle) {
+            return angle * (Math.PI / 180);
+        }
+        let vertexes = []
+
+        for (let a = 0; a < 360; a+= 360/n) {
+            vertexes.push({x: r*Math.cos(toRadians(a + rotation)) + x, y: r*Math.sin(toRadians(a + rotation)) + y})
+        }
+
+        for (let n = 0; n < vertexes.length-1; n++) {
+            this.lines.push({x1: vertexes[n].x, y1: vertexes[n].y, x2: vertexes[n+1].x, y2: vertexes[n+1].y, kin: id})
+        }
+        this.lines.push({x1: vertexes[vertexes.length-1].x, y1: vertexes[vertexes.length-1].y, x2: vertexes[0].x, y2: vertexes[0].y, kin: id})
+    }
+
+    createRect(x, y, w, h, rotation=0) {
+        const id = "id" + Math.random().toString(16).slice(2)
+
+        function toRadians (angle) {
+            return angle * (Math.PI / 180);
+        }
+
+        let vertexes = [{x: x, y: y}]
+        vertexes.push({x: x+w*Math.cos(toRadians(rotation)), y: y+w*Math.sin(toRadians(rotation))})
+        vertexes.push({x: x+h*Math.cos(toRadians(rotation+90)), y: y+h*Math.sin(toRadians(rotation+90))})
+        vertexes.push({x: vertexes[1].x-(x-vertexes[2].x), y: vertexes[1].y-(y-vertexes[2].y)})
+        let temp = vertexes[2]
+        vertexes[2] = vertexes[3]
+        vertexes[3] = vertexes[2]
+
+        for (let n = 0; n < vertexes.length-1; n++) {
+            this.lines.push({x1: vertexes[n].x, y1: vertexes[n].y, x2: vertexes[n+1].x, y2: vertexes[n+1].y, kin: id})
+        }
+        this.lines.push({x1: vertexes[vertexes.length-1].x, y1: vertexes[vertexes.length-1].y, x2: vertexes[0].x, y2: vertexes[0].y, kin: id})
+    }
+
+    createLine(x1, y1, x2, y2) {
+        this.lines.push({x1, y1, x2, y2})
+        return this.lines[this.lines.length - 1]
     }
 
     // Checks if two lines intersect where each paramater is line of structure {x1, y1, x2, y2}
