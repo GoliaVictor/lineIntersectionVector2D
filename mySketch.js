@@ -20,7 +20,6 @@ function draw() {
     if (mouseIsPressed) {
         creatingLine.x2 = mouseX
         creatingLine.y2 = mouseY
-        console.log('hi')
     }
 
     for (const p of intersection.currentIntersections) {

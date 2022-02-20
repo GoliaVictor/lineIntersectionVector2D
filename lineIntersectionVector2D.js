@@ -11,12 +11,18 @@ class LineIntersectionVector2D {
         this.currentIntersections = []
         // loop through this.lines with no repeated combinations
         for (let i = 0; i < this.lines.length; i++) {
-            for (let j = i; j < this.lines.length; j++) {
-                if (this.lines[i].kin != this.lines[j].kin || this.lines[i].kin == null) {
+            for (let j = i+1; j < this.lines.length; j++) {
+                if ((this.lines[i].kin != this.lines[j].kin) || (this.lines[i].kin == null && this.lines[j].kin == null)) {
                     let point = this.checkIntersection(this.lines[i], this.lines[j])
-                if (point) {
-                    this.currentIntersections.push(point)
-                }
+                    if (point) {
+                        this.currentIntersections.push(point)
+                    }
+                    else if (point == undefined) {
+                        let point = this.checkIntersection(this.lines[j], this.lines[i])
+                        if (point) {
+                            this.currentIntersections.push(point)
+                        }
+                    }
                 }
             }
         }
@@ -26,7 +32,7 @@ class LineIntersectionVector2D {
     // r is radius
     // n is number of sides
     createRegularPolygon(x, y, r, n, rotation=0) {
-        const id = "id" + Math.random().toString(16).slice(2)
+        const kin = "kin" + Math.random().toString(16).slice(2)
 
         function toRadians (angle) {
             return angle * (Math.PI / 180);
@@ -38,30 +44,34 @@ class LineIntersectionVector2D {
         }
 
         for (let n = 0; n < vertexes.length-1; n++) {
-            this.lines.push({x1: vertexes[n].x, y1: vertexes[n].y, x2: vertexes[n+1].x, y2: vertexes[n+1].y, kin: id})
+            this.lines.push({x1: vertexes[n].x, y1: vertexes[n].y, x2: vertexes[n+1].x, y2: vertexes[n+1].y, kin: kin})
         }
-        this.lines.push({x1: vertexes[vertexes.length-1].x, y1: vertexes[vertexes.length-1].y, x2: vertexes[0].x, y2: vertexes[0].y, kin: id})
+        this.lines.push({x1: vertexes[vertexes.length-1].x, y1: vertexes[vertexes.length-1].y, x2: vertexes[0].x, y2: vertexes[0].y, kin: kin})
+
+        return kin;
     }
 
     createRect(x, y, w, h, rotation=0) {
-        const id = "id" + Math.random().toString(16).slice(2)
+        const kin = "kin" + Math.random().toString(16).slice(2)
 
         function toRadians (angle) {
             return angle * (Math.PI / 180);
         }
 
+        const cosine = Math.cos(toRadians(rotation))
+        const sine = Math.sin(toRadians(rotation))
+
         let vertexes = [{x: x, y: y}]
-        vertexes.push({x: x+w*Math.cos(toRadians(rotation)), y: y+w*Math.sin(toRadians(rotation))})
-        vertexes.push({x: x+h*Math.cos(toRadians(rotation+90)), y: y+h*Math.sin(toRadians(rotation+90))})
-        vertexes.push({x: vertexes[1].x-(x-vertexes[2].x), y: vertexes[1].y-(y-vertexes[2].y)})
-        let temp = vertexes[2]
-        vertexes[2] = vertexes[3]
-        vertexes[3] = vertexes[2]
+        vertexes.push({x: vertexes[0].x + w*cosine, y: vertexes[0].y + w*sine})
+        vertexes.push({x: vertexes[1].x - h*sine, y: vertexes[1].y + h*cosine})
+        vertexes.push({x: vertexes[0].x - h*sine, y: vertexes[0].y + h*cosine})
 
         for (let n = 0; n < vertexes.length-1; n++) {
-            this.lines.push({x1: vertexes[n].x, y1: vertexes[n].y, x2: vertexes[n+1].x, y2: vertexes[n+1].y, kin: id})
+            this.lines.push({x1: vertexes[n].x, y1: vertexes[n].y, x2: vertexes[n+1].x, y2: vertexes[n+1].y, kin: kin})
         }
-        this.lines.push({x1: vertexes[vertexes.length-1].x, y1: vertexes[vertexes.length-1].y, x2: vertexes[0].x, y2: vertexes[0].y, kin: id})
+        this.lines.push({x1: vertexes[vertexes.length-1].x, y1: vertexes[vertexes.length-1].y, x2: vertexes[0].x, y2: vertexes[0].y, kin: kin})
+
+        return kin;
     }
 
     createLine(x1, y1, x2, y2) {
